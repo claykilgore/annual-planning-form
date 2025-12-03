@@ -307,6 +307,27 @@
             background: var(--color-surface-secondary);
         }
 
+        .button-group {
+            display: flex;
+            gap: var(--space-12);
+            margin-top: var(--space-20);
+        }
+
+        .btn-action {
+            flex: 1;
+            background: var(--color-btn-primary);
+            color: var(--color-btn-primary-text);
+            border: none;
+        }
+
+        .btn-action:hover {
+            background: var(--color-btn-primary-hover);
+        }
+
+        .btn-action:active {
+            background: #5A2E9F;
+        }
+
         .form-actions {
             position: fixed;
             bottom: 0;
@@ -322,7 +343,7 @@
             z-index: 100;
         }
 
-       .success-message {
+        .success-message {
             background: var(--color-surface);
             border: 2px solid var(--color-primary);
             color: var(--color-primary);
@@ -344,21 +365,19 @@
             font-weight: var(--font-weight-medium);
         }
 
-    @media (prefers-color-scheme: dark) {
-        .success-message {
-            background: var(--color-surface);
-            border: 2px solid var(--color-primary);
-            color: var(--color-primary);
-        }
+        @media (prefers-color-scheme: dark) {
+            .success-message {
+                background: var(--color-surface);
+                border: 2px solid var(--color-primary);
+                color: var(--color-primary);
+            }
 
-        .error-message {
-            background: var(--color-surface);
-            border: 2px solid rgba(255, 100, 100, 1);
-            color: rgba(255, 100, 100, 1);
+            .error-message {
+                background: var(--color-surface);
+                border: 2px solid rgba(255, 100, 100, 1);
+                color: rgba(255, 100, 100, 1);
+            }
         }
-}
-
-}
 
         .loading {
             text-align: center;
@@ -407,6 +426,10 @@
             .btn {
                 width: 100%;
             }
+
+            .button-group {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -448,6 +471,11 @@
                         <span class="hint">For confirmation and follow-up</span>
                     </label>
                     <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn btn-action" id="retrieveBtn">Retrieve My Form</button>
+                    <button type="button" class="btn btn-action" id="newFormBtn">Start a New Form</button>
                 </div>
             </div>
 
@@ -669,6 +697,24 @@
 
         // Save button click
         saveBtn.addEventListener('click', saveDraft);
+
+        // Retrieve form button
+        document.getElementById('retrieveBtn').addEventListener('click', () => {
+            loadDraft();
+            // Scroll to top so user sees loaded data
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            alert('Your saved draft has been loaded!');
+        });
+
+        // New form button
+        document.getElementById('newFormBtn').addEventListener('click', () => {
+            if (confirm('Start a completely new form? Your current draft will be cleared.')) {
+                form.reset();
+                localStorage.removeItem('annualPlanningDraft');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                alert('New form ready! Your draft has been cleared.');
+            }
+        });
 
         // Form submission
         form.addEventListener('submit', async (e) => {
