@@ -643,7 +643,7 @@
 
     <script>
         // Configuration - REPLACE WITH YOUR GOOGLE APPS SCRIPT URL
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby3Jp1rmIvkBrr9dQ6_uup89oRMtCQBKEhygQpjSTECXiQ0pLLs_BCPMq7KMs5lQOp9/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxq5gx27mx_sDm6wS3jQPgNZxNJ-mnsfmeySHSv5d4k_6adBeW9AYA3-DQvhY-jzWrW/exec';
 
         // Form elements
         const form = document.getElementById('planningForm');
@@ -699,12 +699,66 @@
         saveBtn.addEventListener('click', saveDraft);
 
         // Retrieve form button
-        document.getElementById('retrieveBtn').addEventListener('click', () => {
-            loadDraft();
-            // Scroll to top so user sees loaded data
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            alert('Your saved draft has been loaded!');
+        document.getElementById('retrieveBtn').addEventListener('click', async () => {
+            const email = document.getElementById('email').value.trim();
+            
+            if (!email) {
+                alert('Please enter your email address first');
+                return;
+            }
+            
+            try {
+                // Show loading state
+                const retrieveBtn = document.getElementById('retrieveBtn');
+                const originalText = retrieveBtn.textContent;
+                retrieveBtn.disabled = true;
+                retrieveBtn.textContent = 'Retrieving...';
+                
+                // Fetch from Google Apps Script
+                const response = await fetch(SCRIPT_URL + '?email=' + encodeURIComponent(email));
+                const result = await response.json();
+                
+                if (result.error) {
+                    alert('Error: ' + result.error);
+                    retrieveBtn.disabled = false;
+                    retrieveBtn.textContent = originalText;
+                    return;
+                }
+                
+                if (!result.data) {
+                    alert('No submission found for this email address');
+                    retrieveBtn.disabled = false;
+                    retrieveBtn.textContent = originalText;
+                    return;
+                }
+                
+                // Populate form with retrieved data
+                const data = result.data;
+                Object.keys(data).forEach(key => {
+                    const field = form.elements[key];
+                    if (field) {
+                        field.value = data[key] || '';
+                    }
+                });
+                
+                // Show success message
+                alert('Your form has been retrieved! You can now edit and resubmit.');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                // Reset button
+                retrieveBtn.disabled = false;
+                retrieveBtn.textContent = originalText;
+                
+                console.log('Form retrieved from Google Sheet for:', email);
+                
+            } catch (error) {
+                console.error('Retrieval error:', error);
+                alert('Error retrieving form. Please check the console for details.');
+                document.getElementById('retrieveBtn').disabled = false;
+                document.getElementById('retrieveBtn').textContent = 'Retrieve My Form';
+            }
         });
+
 
         // New form button
         document.getElementById('newFormBtn').addEventListener('click', () => {
